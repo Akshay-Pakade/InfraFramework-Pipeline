@@ -2,20 +2,16 @@ pipeline {
     agent any
 
     environment {
-        // Azure credentials (stored in Jenkins credentials)
         ARM_CLIENT_ID       = credentials('arm-client-id')
         ARM_CLIENT_SECRET   = credentials('arm-client-secret')
         ARM_SUBSCRIPTION_ID = credentials('arm-sub-id')
         ARM_TENANT_ID       = credentials('arm-tenant-id')
-
-        // Terraform variables
-        TF_ROOT             = 'JioCloudInfra'   // <-- Terraform root folder
+        TF_ROOT             = 'JioCloudInfra'
         TF_PLAN             = 'tfplan'
     }
 
     options {
         timestamps()
-        ansiColor('xterm')  // colored logs
         skipStagesAfterUnstable()
     }
 
@@ -30,9 +26,7 @@ pipeline {
 
         stage('Check Workspace') {
             steps {
-                echo "Workspace Path:"
                 sh 'pwd'
-                echo "Workspace Files:"
                 sh 'ls -R'
             }
         }
