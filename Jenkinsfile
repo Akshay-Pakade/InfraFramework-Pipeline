@@ -2,10 +2,13 @@ pipeline {
     agent any
 
     environment {
+        // Azure credentials stored in Jenkins
         ARM_CLIENT_ID       = credentials('arm-client-id')
         ARM_CLIENT_SECRET   = credentials('arm-client-secret')
         ARM_SUBSCRIPTION_ID = credentials('arm-sub-id')
         ARM_TENANT_ID       = credentials('arm-tenant-id')
+
+        // Terraform variables
         TF_ROOT             = 'JioCloudInfra'
         TF_PLAN             = 'tfplan'
     }
@@ -26,7 +29,9 @@ pipeline {
 
         stage('Check Workspace') {
             steps {
+                echo "Jenkins Workspace Path:"
                 sh 'pwd'
+                echo "Workspace Folder Structure:"
                 sh 'ls -R'
             }
         }
@@ -34,6 +39,7 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 dir("${TF_ROOT}") {
+                    echo "Initializing Terraform in ${TF_ROOT}..."
                     sh 'terraform init -backend-config=backend.tf'
                 }
             }
@@ -42,6 +48,7 @@ pipeline {
         stage('Terraform Validate') {
             steps {
                 dir("${TF_ROOT}") {
+                    echo "Validating Terraform configuration..."
                     sh 'terraform validate'
                 }
             }
@@ -50,6 +57,7 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 dir("${TF_ROOT}") {
+                    echo "Generating Terraform plan..."
                     sh "terraform plan -out=${TF_PLAN}"
                 }
             }
@@ -64,6 +72,7 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 dir("${TF_ROOT}") {
+                    echo "Applying Terraform plan..."
                     sh "terraform apply -auto-approve ${TF_PLAN}"
                 }
             }
@@ -72,7 +81,7 @@ pipeline {
 
     post {
         always {
-            echo 'Cleaning workspace...'
+            echo 'Cleaning Jenkins workspace...'
             cleanWs()
         }
         success {
