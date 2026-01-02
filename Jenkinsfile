@@ -2,20 +2,40 @@ pipeline {
     agent any
 
     environment {
+        // Azure credentials (stored in Jenkins credentials)
         ARM_CLIENT_ID       = credentials('arm-client-id')
         ARM_CLIENT_SECRET   = credentials('arm-client-secret')
         ARM_SUBSCRIPTION_ID = credentials('arm-sub-id')
         ARM_TENANT_ID       = credentials('arm-tenant-id')
-        TF_ROOT             = 'JioCloudInfra'
+
+        // Terraform variables
+        TF_ROOT             = 'JioCloudInfra'   // <-- Terraform root folder
         TF_PLAN             = 'tfplan'
     }
 
     options {
         timestamps()
-        ansiColor('xterm')  // optional, better logs
+        ansiColor('xterm')  // colored logs
+        skipStagesAfterUnstable()
     }
 
     stages {
+
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/Akshay-Pakade/InfraFramework-Pipeline.git'
+            }
+        }
+
+        stage('Check Workspace') {
+            steps {
+                echo "Workspace Path:"
+                sh 'pwd'
+                echo "Workspace Files:"
+                sh 'ls -R'
+            }
+        }
 
         stage('Terraform Init') {
             steps {
