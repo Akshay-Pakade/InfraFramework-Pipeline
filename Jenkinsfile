@@ -6,34 +6,40 @@ pipeline {
         ARM_CLIENT_SECRET   = credentials('arm-client-secret')
         ARM_SUBSCRIPTION_ID = credentials('arm-sub-id')
         ARM_TENANT_ID       = credentials('arm-tenant-id')
+        TF_ROOT             = 'JioCloudInfra'
+        TF_PLAN             = 'tfplan'
     }
 
     options {
         timestamps()
+        ansiColor('xterm')  // optional, better logs
     }
 
     stages {
 
         stage('Terraform Init') {
             steps {
-                sh 'terraform init'
+                dir("${TF_ROOT}") {
+                    sh 'terraform init -backend-config=backend.tf'
+                }
             }
         }
 
         stage('Terraform Validate') {
             steps {
-                sh 'terraform validate'
+                dir("${TF_ROOT}") {
+                    sh 'terraform validate'
+                }
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                dir('JioCloudInfra') {
-                sh 'terraform plan -out=tfplan'
+                dir("${TF_ROOT}") {
+                    sh "terraform plan -out=${TF_PLAN}"
+                }
+            }
         }
-    }
-}
-
 
         stage('Manual Approval') {
             steps {
@@ -43,8 +49,23 @@ pipeline {
 
         stage('Terraform Apply') {
             steps {
-                sh 'terraform apply tfplan'
+                dir("${TF_ROOT}") {
+                    sh "terraform apply -auto-approve ${TF_PLAN}"
+                }
             }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning workspace...'
+            cleanWs()
+        }
+        success {
+            echo 'Terraform executed successfully ✅'
+        }
+        failure {
+            echo 'Terraform failed ❌'
         }
     }
 }
