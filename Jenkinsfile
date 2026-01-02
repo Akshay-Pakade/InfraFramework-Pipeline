@@ -14,13 +14,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
-            steps {
-                git branch: 'main',
-                    url: 'https://github.com/Akshay-Pakade/InfraFramework-Pipeline'
-            }
-        }
-
         stage('Terraform Init') {
             steps {
                 sh 'terraform init'
@@ -52,4 +45,3 @@ pipeline {
         }
     }
 }
-
