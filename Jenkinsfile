@@ -17,7 +17,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/your-org/JioCloudInfra.git'
+                    url: 'https://github.com/Akshay-Pakade/InfraFramework-Pipeline'
             }
         }
 
