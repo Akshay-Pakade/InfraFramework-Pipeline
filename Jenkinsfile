@@ -2,13 +2,10 @@ pipeline {
     agent any
 
     environment {
-        // Azure credentials stored in Jenkins
         ARM_CLIENT_ID       = credentials('arm-client-id')
         ARM_CLIENT_SECRET   = credentials('arm-client-secret')
         ARM_SUBSCRIPTION_ID = credentials('arm-sub-id')
         ARM_TENANT_ID       = credentials('arm-tenant-id')
-
-        // Terraform variables
         TF_ROOT             = 'JioCloudInfra'
         TF_PLAN             = 'tfplan'
     }
@@ -40,7 +37,7 @@ pipeline {
             steps {
                 dir("${TF_ROOT}") {
                     echo "Initializing Terraform in ${TF_ROOT}..."
-                    sh 'terraform init -backend-config=backend.tf'
+                    sh 'terraform init'   // <- backend.tf remove kar diya
                 }
             }
         }
