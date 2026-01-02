@@ -28,9 +28,12 @@ pipeline {
 
         stage('Terraform Plan') {
             steps {
+                dir('JioCloudInfra') {
                 sh 'terraform plan -out=tfplan'
-            }
         }
+    }
+}
+
 
         stage('Manual Approval') {
             steps {
